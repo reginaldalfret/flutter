@@ -219,6 +219,11 @@ class Focus extends StatefulWidget {
   ///
   /// Called with true if this widget's node gains focus, and false if it loses
   /// focus.
+  ///
+  /// This callback is not called when the [Focus] widget is unmounted or
+  /// disposed of while focused. To respond to the loss of focus when a
+  /// widget is removed from the widget tree, supply an explicit [focusNode]
+  /// and attach a listener using [FocusNode.addListener].
   final ValueChanged<bool>? onFocusChange;
 
   /// A handler for keys that are pressed when this object or one of its
