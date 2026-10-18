@@ -339,4 +339,54 @@ void main() {
     await tester.pumpAndSettle();
     expect(notification, isA<ScrollEndNotification>());
   });
+
+  // This is a regression test for https://github.com/flutter/flutter/issues/160301.
+  testWidgets('OverscrollNotification asserts with descriptive messages', (WidgetTester tester) async {
+    late BuildContext targetContext;
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: SingleChildScrollView(
+          child: Builder(
+            builder: (BuildContext context) {
+              targetContext = context;
+              return const SizedBox(height: 100.0);
+            },
+          ),
+        ),
+      ),
+    );
+
+    final ScrollPosition position = Scrollable.of(targetContext).position;
+
+    expect(
+      () => OverscrollNotification(
+        metrics: position,
+        context: targetContext,
+        overscroll: double.infinity,
+      ),
+      throwsA(
+        isA<AssertionError>().having(
+          (AssertionError e) => e.message,
+          'message',
+          'The overscroll value must be finite, but was Infinity.',
+        ),
+      ),
+    );
+
+    expect(
+      () => OverscrollNotification(
+        metrics: position,
+        context: targetContext,
+        overscroll: 0.0,
+      ),
+      throwsA(
+        isA<AssertionError>().having(
+          (AssertionError e) => e.message,
+          'message',
+          'The overscroll value must not be zero.',
+        ),
+      ),
+    );
+  });
 }
