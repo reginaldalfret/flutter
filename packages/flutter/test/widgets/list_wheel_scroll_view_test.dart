@@ -2059,4 +2059,34 @@ void main() {
       expect(tester.getSize(find.byType(ListWheelViewport)), Size.zero);
     },
   );
+
+  // This is a regression test for https://github.com/flutter/flutter/issues/125997.
+  testWidgets(
+    'FixedExtentScrollPosition.copyWith does not throw before content dimensions are attached',
+    (WidgetTester tester) async {
+      late ScrollPosition position;
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: ListWheelScrollView(
+            controller: FixedExtentScrollController(),
+            itemExtent: 50.0,
+            children: <Widget>[
+              Builder(
+                builder: (BuildContext context) {
+                  position = Scrollable.of(context).position;
+                  // Trigger copyWith (like ScrollAwareImageProvider does via recommendDeferredLoading)
+                  // before layout attaches content dimensions.
+                  position.copyWith();
+                  return Container(height: 50.0);
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

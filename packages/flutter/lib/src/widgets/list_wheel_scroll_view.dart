@@ -432,7 +432,11 @@ class _FixedExtentScrollPosition extends ScrollPositionWithSingleContext
       viewportDimension:
           viewportDimension ?? (hasViewportDimension ? this.viewportDimension : null),
       axisDirection: axisDirection ?? this.axisDirection,
-      itemIndex: itemIndex ?? this.itemIndex,
+      itemIndex:
+          itemIndex ??
+          (hasContentDimensions && hasPixels
+              ? this.itemIndex
+              : (hasPixels ? (this.pixels / itemExtent).round() : 0)),
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
